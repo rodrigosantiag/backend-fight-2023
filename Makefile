@@ -21,6 +21,7 @@ all:
 
 .env:
 	echo 'PYTHONPATH="$(PYTHONPATH)"' > .env
+	cat .env_sample >> .env
 
 .venv:
 	python3.11 -m venv $(VIRTUALENV)
@@ -59,10 +60,13 @@ build:
 	@docker compose build
 
 up:
-	@docker compose up --wait
+	@docker compose up --build --wait
 
 down:
 	@docker compose down
 
 logs:
 	@docker compose logs -f
+
+create-migration:
+	@alembic revision -m "${description}"

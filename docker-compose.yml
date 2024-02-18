@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+  database:
+    image: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: backend_fight_2023
+    ports:
+      - "5433:5432"
+    volumes:
+      - .pgdata:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+    command: uvicorn src.main:app --host 0.0.0.0 --port 3000 --reload
+    volumes:
+      - .:/app
+    env_file: .env
+    stdin_open: true
+    tty: true
+    ports:
+      - "3000:3000"
+    depends_on:
+      database:
+        condition: service_healthy
+    entrypoint: /usr/bin/entrypoint.sh
+    restart: always
