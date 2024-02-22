@@ -262,5 +262,6 @@ poetry.toml
 pyrightconfig.json
 
 .pgdata
+.pgdata_test
 
 # End of https://www.toptal.com/developers/gitignore/api/python,intellij+all

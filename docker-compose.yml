@@ -19,6 +19,7 @@ services:
   api:
     build:
       context: .
+      target: application
     command: uvicorn src.main:app --host 0.0.0.0 --port 3000 --reload
     volumes:
       - .:/app
@@ -32,3 +33,21 @@ services:
         condition: service_healthy
     entrypoint: /usr/bin/entrypoint.sh
     restart: always
+
+  testgres:
+    image: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: backend_fight_2023
+    ports:
+      - "15432:5432"
+    volumes:
+      - .pgdata_test:/var/lib/postgresql/data
+
+volumes:
+  .pgdata_test:

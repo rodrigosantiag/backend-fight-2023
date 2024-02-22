@@ -3,7 +3,7 @@ PROJECT_NAME  := backend-fight-2023
 PROJECT_PATH  := $(shell ls */main.py | xargs dirname | head -n 1)
 
 # venv settings
-export PYTHONPATH := $(PROJECT_PATH):tests/fixtures
+export PYTHONPATH := $(PROJECT_PATH)
 export VIRTUALENV := $(PWD)/.venv
 export PATH       := $(VIRTUALENV)/bin:$(PATH)
 
@@ -51,16 +51,17 @@ format:
 	black --line-length=100 --target-version=py311 .
 
 test:
-	coverage run --source=$(PROJECT_PATH) --omit=dependencies -m unittest
-
-coverage: test .coverage
-	coverage report -m --fail-under=90
+	@docker compose up --build --wait testgres
+	alembic downgrade base
+	alembic upgrade head
+	coverage run --source=$(PROJECT_PATH) --omit=dependencies -m unittest && coverage report -m --fail-under=90
+	@docker compose down --volumes
 
 build:
 	@docker compose build
 
 up:
-	@docker compose up --build --wait
+	@docker compose up --build --wait api
 
 down:
 	@docker compose down

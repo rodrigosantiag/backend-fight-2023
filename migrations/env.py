@@ -25,7 +25,12 @@ target_metadata = None
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
+config.set_main_option(
+    "sqlalchemy.url",
+    os.getenv(
+        "DATABASE_URL", "postgresql+psycopg2://postgres:password@localhost:15432/backend_fight_2023"
+    ),
+)
 
 
 def run_migrations_offline() -> None:

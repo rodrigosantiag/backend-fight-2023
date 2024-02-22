@@ -5,6 +5,7 @@ Revises:
 Create Date: 2024-02-17 15:36:16.932706
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -21,7 +22,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     create_table = """CREATE TABLE IF NOT EXISTS pessoas(
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        apelido VARCHAR(32) NOT NULL,
+        apelido VARCHAR(32) NOT NULL UNIQUE,
         nome VARCHAR(100) NOT NULL,
         nascimento DATE NOT NULL,
         stack TEXT
