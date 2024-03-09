@@ -10,6 +10,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from sqlalchemy.exc import IntegrityError, DataError
+from sqlalchemy import select
 
 app = FastAPI()
 
@@ -53,7 +54,9 @@ def hello_world():
 
 
 @app.post("/pessoas")
-async def add_person(data: PessoaSchema, db_session: Session = Depends(get_session)):
+async def add_person(
+    data: PessoaSchema, db_session: Session = Depends(get_session)
+) -> JSONResponse:
     person = Pessoa(**data.model_dump())
     db_session.add(person)
     db_session.commit()
@@ -63,3 +66,24 @@ async def add_person(data: PessoaSchema, db_session: Session = Depends(get_sessi
     return JSONResponse(
         status_code=HTTPStatus.CREATED, content={"uid": str(person.id)}, headers=headers
     )
+
+
+@app.get("/pessoas/{uid}")
+async def get_person(uid: str, db_session: Session = Depends(get_session)) -> JSONResponse:
+    statement = select(Pessoa).where(Pessoa.id == uid).limit(1)
+    person = db_session.execute(statement).first()
+
+    if not person:
+        return JSONResponse(status_code=HTTPStatus.NOT_FOUND, content={"message": "Not found"})
+
+    person = person[0]
+
+    response = {
+        "id": str(person.id),
+        "apelido": person.apelido,
+        "nome": person.nome,
+        "nascimento": str(person.nascimento),
+        "stack": person.stack.replace("{", "").replace("}", "").split(","),
+    }
+
+    return JSONResponse(status_code=HTTPStatus.OK, content=response)

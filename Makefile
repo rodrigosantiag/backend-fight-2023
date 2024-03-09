@@ -55,7 +55,7 @@ test:
 	alembic downgrade base
 	alembic upgrade head
 	coverage run --source=$(PROJECT_PATH) --omit=dependencies -m unittest && coverage report -m --fail-under=90
-	@docker compose down --volumes
+	-@docker compose down --volumes
 
 build:
 	@docker compose build

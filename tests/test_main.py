@@ -1,6 +1,7 @@
 import unittest
 from datetime import date
 from http import HTTPStatus
+from uuid import UUID
 
 from fastapi.testclient import TestClient
 
@@ -17,10 +18,19 @@ class TestMain(unittest.TestCase):
             apelido="rodrigo",
             nome="Rodrigo",
             nascimento=date(1986, 1, 23),
-            stack="python",
+            stack="{python}",
+        )
+
+        registered_person = Pessoa(
+            id=UUID("9c403c50-ffe0-471e-963b-acbbcc7bf23c"),
+            apelido="findable",
+            nome="Zé Encontrado",
+            nascimento=date(1980, 1, 1),
+            stack="{Python,C#,PHP,Ruby}",
         )
 
         db_session.get().add(person)
+        db_session.get().add(registered_person)
         db_session.get().commit()
 
     @init_session
@@ -68,6 +78,12 @@ class TestMain(unittest.TestCase):
                 "nascimento": "2000-10-01",
                 "stack": ["C#", "Node", "Oracle"],
             },
+            {
+                "apelido": "rodrigoramossantiago1234567891022234567",
+                "nome": "José Roberto",
+                "nascimento": "2000-10-01",
+                "stack": ["C#", "Node", "Oracle"],
+            },
             {"apelido": "ana", "nome": None, "nascimento": "1985-09-23", "stack": None},
             {"apelido": None, "nome": "Ana Barbosa", "nascimento": "1985-01-23", "stack": None},
         ]
@@ -91,3 +107,25 @@ class TestMain(unittest.TestCase):
 
                 self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
                 self.assertIn("errors", response.json())
+
+    def test_get_person_succeed(self):
+        response = client.get("/pessoas/9c403c50-ffe0-471e-963b-acbbcc7bf23c")
+
+        expected = {
+            "id": "9c403c50-ffe0-471e-963b-acbbcc7bf23c",
+            "apelido": "findable",
+            "nome": "Zé Encontrado",
+            "nascimento": "1980-01-01",
+            "stack": ["Python", "C#", "PHP", "Ruby"],
+        }
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertDictEqual(response.json(), expected)
+
+    def test_get_person_not_found(self):
+        response = client.get("/pessoas/6fd255ee-9655-4f19-aa5e-9a96bca4fc40")
+
+        expected = {"message": "Not found"}
+
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertDictEqual(response.json(), expected)
