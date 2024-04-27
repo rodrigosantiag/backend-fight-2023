@@ -28,8 +28,6 @@ def upgrade() -> None:
         stack TEXT
     );"""
 
-    # TODO: create required indexes
-
     connection = op.get_bind()
     connection.execute(sa.text(create_table))
 

@@ -2,7 +2,7 @@ from datetime import date
 from typing import Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import String
+from sqlalchemy import String, text, select
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
@@ -40,3 +40,23 @@ class Pessoa(Base):
     nome: Mapped[str] = mapped_column(String(100))
     nascimento: Mapped[date]
     stack: Mapped[Optional[str]]
+
+    @classmethod
+    @init_session
+    def get_people_by_term(cls, term: str):
+        query = text(
+            f"""
+            SELECT
+                id, apelido, nome, nascimento, stack
+            FROM pessoas
+            WHERE
+                apelido ILIKE '%{term}%'
+                OR nome ILIKE '%{term}%'
+                OR stack ILIKE '%{term}%'
+            """
+        )
+
+        sql = select(Pessoa).from_statement(query)
+        people = list(db_session.get().execute(sql).scalars())
+
+        return people

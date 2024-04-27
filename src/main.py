@@ -87,3 +87,11 @@ async def get_person(uid: str, db_session: Session = Depends(get_session)) -> JS
     }
 
     return JSONResponse(status_code=HTTPStatus.OK, content=response)
+
+
+@app.get("/pessoas")
+async def get_person_by_term(t: str | None = None) -> JSONResponse:
+    if not t:
+        return JSONResponse(status_code=HTTPStatus.BAD_REQUEST, content={"message": "error"})
+
+    return JSONResponse(status_code=HTTPStatus.OK, content={"message": "success"})
