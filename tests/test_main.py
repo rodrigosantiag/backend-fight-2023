@@ -15,6 +15,7 @@ class TestMain(unittest.TestCase):
     @init_session
     def setUp(self):
         person = Pessoa(
+            id=UUID("cdd14366-279f-4729-887e-6b977ee2b589"),
             apelido="rodrigo",
             nome="Rodrigo",
             nascimento=date(1986, 1, 23),
@@ -129,3 +130,40 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertDictEqual(response.json(), expected)
+
+    def test_get_person_by_term_no_results(self):
+        expected = []
+
+        response = client.get("/pessoas?t=foobar")
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertListEqual(response.json(), expected)
+
+    def test_get_person_by_term_with_results(self):
+        expected = [
+            {
+                "id": "cdd14366-279f-4729-887e-6b977ee2b589",
+                "apelido": "rodrigo",
+                "nome": "Rodrigo",
+                "nascimento": "1986-01-23",
+                "stack": ["python"],
+            },
+            {
+                "id": "9c403c50-ffe0-471e-963b-acbbcc7bf23c",
+                "apelido": "findable",
+                "nome": "Zé Encontrado",
+                "nascimento": "1980-01-01",
+                "stack": ["Python", "C#", "PHP", "Ruby"],
+            },
+        ]
+
+        response = client.get("/pessoas?t=python")
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertListEqual(response.json(), expected)
+
+    def test_get_person_missing_term_query_string(self):
+        response = client.get("/pessoas")
+
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
+        self.assertDictEqual(response.json(), {"message": "error"})

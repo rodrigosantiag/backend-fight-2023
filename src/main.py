@@ -94,4 +94,19 @@ async def get_person_by_term(t: str | None = None) -> JSONResponse:
     if not t:
         return JSONResponse(status_code=HTTPStatus.BAD_REQUEST, content={"message": "error"})
 
-    return JSONResponse(status_code=HTTPStatus.OK, content={"message": "success"})
+    result = []
+
+    people = Pessoa.get_people_by_term(t)
+
+    for person in people:
+        result.append(
+            {
+                "id": str(person.id),
+                "apelido": person.apelido,
+                "nome": person.nome,
+                "nascimento": person.nascimento.isoformat(),
+                "stack": person.stack.replace("{", "").replace("}", "").split(","),
+            }
+        )
+
+    return JSONResponse(status_code=HTTPStatus.OK, content=result)
