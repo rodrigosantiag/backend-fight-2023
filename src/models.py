@@ -60,3 +60,8 @@ class Pessoa(Base):
         people = list(db_session.get().execute(sql).scalars())
 
         return people
+
+    @classmethod
+    @init_session
+    def count(cls):
+        return db_session.get().query(Pessoa).count()

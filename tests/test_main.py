@@ -167,3 +167,9 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
         self.assertDictEqual(response.json(), {"message": "error"})
+
+    def test_count_people(self):
+        response = client.get("/contagem-pessoas")
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(response.text, "2")

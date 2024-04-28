@@ -110,3 +110,8 @@ async def get_people_by_term(t: str | None = None) -> JSONResponse:
         )
 
     return JSONResponse(status_code=HTTPStatus.OK, content=result)
+
+
+@app.get("/contagem-pessoas", status_code=HTTPStatus.OK)
+def count_people():
+    return Pessoa.count()

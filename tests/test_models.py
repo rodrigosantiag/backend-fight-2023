@@ -100,3 +100,9 @@ class TestPessoa(unittest.TestCase):
         self.assertEqual(len(result), 2)
         self.assertIn(str(result[0].id), uuids_expected)
         self.assertIn(str(result[1].id), uuids_expected)
+
+    @init_session
+    def test_count(self):
+        result = Pessoa.count()
+
+        self.assertEqual(result, 3)
