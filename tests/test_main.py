@@ -131,7 +131,7 @@ class TestMain(unittest.TestCase):
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertDictEqual(response.json(), expected)
 
-    def test_get_person_by_term_no_results(self):
+    def test_get_people_by_term_no_results(self):
         expected = []
 
         response = client.get("/pessoas?t=foobar")
@@ -139,7 +139,7 @@ class TestMain(unittest.TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertListEqual(response.json(), expected)
 
-    def test_get_person_by_term_with_results(self):
+    def test_get_people_by_term_with_results(self):
         expected = [
             {
                 "id": "cdd14366-279f-4729-887e-6b977ee2b589",
@@ -162,7 +162,7 @@ class TestMain(unittest.TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertListEqual(response.json(), expected)
 
-    def test_get_person_missing_term_query_string(self):
+    def test_get_people_missing_term_query_string(self):
         response = client.get("/pessoas")
 
         self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
