@@ -31,7 +31,9 @@ services:
     stdin_open: true
     tty: true
     ports:
-      - "80:3000"
+      - "3000:3000"
+    expose:
+      - "80"
     hostname: api
     depends_on:
       database:
@@ -56,7 +58,9 @@ services:
     stdin_open: true
     tty: true
     ports:
-      - "80:3000"
+      - "3001:3001"
+    expose:
+      - "80"
     hostname: api
     depends_on:
       database:

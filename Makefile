@@ -63,6 +63,9 @@ build:
 up:
 	@docker compose up --build --wait api
 
+nginx:
+	@docker compose up --build --wait nginx
+
 down:
 	@docker compose down
 
