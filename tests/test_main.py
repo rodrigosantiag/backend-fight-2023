@@ -30,8 +30,17 @@ class TestMain(unittest.TestCase):
             stack="{Python,C#,PHP,Ruby}",
         )
 
+        registered_person_no_stack = Pessoa(
+            id=UUID("678627aa-a94d-4643-9693-ccf6d19bcad5"),
+            apelido="findable_no_stack",
+            nome="Zé Encontrado Sem Stack",
+            nascimento=date(1980, 1, 1),
+            stack=None,
+        )
+
         db_session.get().add(person)
         db_session.get().add(registered_person)
+        db_session.get().add(registered_person_no_stack)
         db_session.get().commit()
 
     @init_session
@@ -123,6 +132,20 @@ class TestMain(unittest.TestCase):
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertDictEqual(response.json(), expected)
 
+    def test_get_person_succeed_no_stack(self):
+        response = client.get("/pessoas/678627aa-a94d-4643-9693-ccf6d19bcad5")
+
+        expected = {
+            "id": "678627aa-a94d-4643-9693-ccf6d19bcad5",
+            "apelido": "findable_no_stack",
+            "nome": "Zé Encontrado Sem Stack",
+            "nascimento": "1980-01-01",
+            "stack": [],
+        }
+
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertDictEqual(response.json(), expected)
+
     def test_get_person_not_found(self):
         response = client.get("/pessoas/6fd255ee-9655-4f19-aa5e-9a96bca4fc40")
 
@@ -155,9 +178,16 @@ class TestMain(unittest.TestCase):
                 "nascimento": "1980-01-01",
                 "stack": ["Python", "C#", "PHP", "Ruby"],
             },
+            {
+                "id": "678627aa-a94d-4643-9693-ccf6d19bcad5",
+                "apelido": "findable_no_stack",
+                "nome": "Zé Encontrado Sem Stack",
+                "nascimento": "1980-01-01",
+                "stack": [],
+            },
         ]
 
-        response = client.get("/pessoas?t=python")
+        response = client.get("/pessoas?t=i")
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertListEqual(response.json(), expected)
@@ -172,4 +202,4 @@ class TestMain(unittest.TestCase):
         response = client.get("/contagem-pessoas")
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(response.text, "2")
+        self.assertEqual(response.text, "3")

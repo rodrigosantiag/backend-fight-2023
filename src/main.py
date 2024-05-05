@@ -83,7 +83,7 @@ async def get_person(uid: str, db_session: Session = Depends(get_session)) -> JS
         "apelido": person.apelido,
         "nome": person.nome,
         "nascimento": str(person.nascimento),
-        "stack": person.stack.replace("{", "").replace("}", "").split(","),
+        "stack": person.build_stack_as_list(),
     }
 
     return JSONResponse(status_code=HTTPStatus.OK, content=response)
@@ -105,7 +105,7 @@ async def get_people_by_term(t: str | None = None) -> JSONResponse:
                 "apelido": person.apelido,
                 "nome": person.nome,
                 "nascimento": person.nascimento.isoformat(),
-                "stack": person.stack.replace("{", "").replace("}", "").split(","),
+                "stack": person.build_stack_as_list(),
             }
         )
 

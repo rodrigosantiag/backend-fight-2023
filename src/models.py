@@ -41,6 +41,12 @@ class Pessoa(Base):
     nascimento: Mapped[date]
     stack: Mapped[Optional[str]]
 
+    def build_stack_as_list(self) -> list[str]:
+        if self.stack is None:
+            return []
+
+        return self.stack.replace("{", "").replace("}", "").split(",")
+
     @classmethod
     @init_session
     def get_people_by_term(cls, term: str):
