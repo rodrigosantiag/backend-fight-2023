@@ -2,7 +2,7 @@ from datetime import date
 from typing import Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import String, text, select
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
@@ -46,28 +46,3 @@ class Pessoa(Base):
             return []
 
         return self.stack.replace("{", "").replace("}", "").split(",")
-
-    @classmethod
-    @init_session
-    def get_people_by_term(cls, term: str):
-        query = text(
-            f"""
-            SELECT
-                id, apelido, nome, nascimento, stack
-            FROM pessoas
-            WHERE
-                apelido ILIKE '%{term}%'
-                OR nome ILIKE '%{term}%'
-                OR stack ILIKE '%{term}%'
-            """
-        )
-
-        sql = select(Pessoa).from_statement(query)
-        people = list(db_session.get().execute(sql).scalars())
-
-        return people
-
-    @classmethod
-    @init_session
-    def count(cls):
-        return db_session.get().query(Pessoa).count()

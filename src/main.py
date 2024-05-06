@@ -10,7 +10,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from fastapi import Depends
 from sqlalchemy.exc import IntegrityError, DataError
-from sqlalchemy import select
+from sqlalchemy import select, or_
 
 app = FastAPI()
 
@@ -90,13 +90,26 @@ async def get_person(uid: str, db_session: Session = Depends(get_session)) -> JS
 
 
 @app.get("/pessoas")
-async def get_people_by_term(t: str | None = None) -> JSONResponse:
+async def get_people_by_term(
+    t: str | None = None, db_session: Session = Depends(get_session)
+) -> JSONResponse:
     if not t:
         return JSONResponse(status_code=HTTPStatus.BAD_REQUEST, content={"message": "error"})
 
     result = []
 
-    people = Pessoa.get_people_by_term(t)
+    people = (
+        db_session.query(Pessoa)
+        .filter(
+            or_(
+                Pessoa.apelido.ilike(f"%{t}%"),
+                Pessoa.nome.ilike(f"%{t}%"),
+                Pessoa.stack.ilike(f"%{t}%"),
+            )
+        )
+        .limit(50)
+        .all()
+    )
 
     for person in people:
         result.append(
@@ -113,5 +126,5 @@ async def get_people_by_term(t: str | None = None) -> JSONResponse:
 
 
 @app.get("/contagem-pessoas", status_code=HTTPStatus.OK)
-def count_people():
-    return Pessoa.count()
+def count_people(db_session: Session = Depends(get_session)):
+    return db_session.query(Pessoa).count()
