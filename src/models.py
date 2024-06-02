@@ -5,22 +5,19 @@ from uuid import UUID, uuid4
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from database import Base
+from database import Base, LocalSession
 from database.db_session import DBSession
 
 db_session = DBSession()
 
 
 def get_session():
-    db_session.create()
+    session = LocalSession()
 
     try:
-        yield db_session.get()
-    except Exception as exc:
-        db_session.rollback()
-        raise exc
+        yield session
     finally:
-        db_session.close()
+        session.close()
 
 
 def init_session(func):
