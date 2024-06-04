@@ -1,4 +1,4 @@
-FROM python:3.11 AS base
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11 AS base
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN rm requirements.txt
 
 EXPOSE 3000
 
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "src.main:app", "--workers", "1", "--bind", "0.0.0.0:3000", "--timeout", "120", "--keep-alive", "5", "--max-requests", "1000", "--graceful-timeout", "30"]
+CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "src.main:app", "--bind", "0.0.0.0:3000"]
 
 
 FROM base AS test

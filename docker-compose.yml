@@ -19,7 +19,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.7'
+          cpus: '0.4'
           memory: '1GB'
 
   api:
@@ -27,7 +27,7 @@ services:
       context: .
       target: application
     image: rrsantiago/backend-fight-2023
-    command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "src.main:app", "--workers", "1", "--bind", "0.0.0.0:3000", "--timeout", "120", "--keep-alive", "5", "--max-requests", "1000", "--graceful-timeout", "30"]
+    command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "src.main:app", "--bind", "0.0.0.0:3000"]
     volumes:
       - .:/app
     env_file: .env
@@ -48,15 +48,15 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.2'
-          memory: '0.5GB'
+          cpus: '0.4'
+          memory: '0.7GB'
 
   api1:
     build:
       context: .
       target: application
     image: rrsantiago/backend-fight-2023
-    command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "src.main:app", "--workers", "1", "--bind", "0.0.0.0:3001", "--timeout", "120", "--keep-alive", "5", "--max-requests", "1000", "--graceful-timeout", "30"]
+    command: ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "src.main:app", "--bind", "0.0.0.0:3001"]
     volumes:
       - .:/app
     env_file: .env
@@ -77,8 +77,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.2'
-          memory: '0.5GB'
+          cpus: '0.4'
+          memory: '0.7GB'
 
   nginx: # Load Balancer
     image: nginx:latest
@@ -98,7 +98,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: '0.2'
           memory: '0.5GB'
 
   testgres:
@@ -129,8 +129,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.15'
-          memory: '0.5GB'
+          cpus: '0.1'
+          memory: '0.1GB'
 
 volumes:
   .pgdata_test:
