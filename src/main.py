@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 from fastapi import FastAPI, Request
 
-from models import Pessoa, get_session
+from models import Pessoa, get_session, get_redis
 from schemas import PessoaSchema
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -12,11 +12,8 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from sqlalchemy.exc import IntegrityError, DataError
 from sqlalchemy import select, or_
-import redis
 
 app = FastAPI()
-
-cache = redis.StrictRedis(host="redis", port=6379, decode_responses=True)
 
 
 def serialize(data):
@@ -67,7 +64,7 @@ def hello_world():
 
 @app.post("/pessoas")
 async def add_person(
-    data: PessoaSchema, db_session: Session = Depends(get_session)
+    data: PessoaSchema, db_session: Session = Depends(get_session), cache=Depends(get_redis)
 ) -> JSONResponse:
     cached_person = cache.get(data.apelido)
 
@@ -93,7 +90,9 @@ async def add_person(
 
 
 @app.get("/pessoas/{uid}")
-async def get_person(uid: str, db_session: Session = Depends(get_session)) -> JSONResponse:
+async def get_person(
+    uid: str, db_session: Session = Depends(get_session), cache=Depends(get_redis)
+) -> JSONResponse:
     cached_person = cache.get(uid)
 
     if cached_person:

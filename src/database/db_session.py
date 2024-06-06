@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database import LocalSession
 
 
-class DBSession:
+class DBSession:  # pragma: no cover
     _session: Session = None
 
     def create(self):

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base, LocalSession
 from database.db_session import DBSession
+from redis import StrictRedis
 
 db_session = DBSession()
 
@@ -18,6 +19,10 @@ def get_session():
         yield session
     finally:
         session.close()
+
+
+def get_redis():  # pragma: no cover
+    return StrictRedis(host="redis", port=6379, decode_responses=True)
 
 
 def init_session(func):
