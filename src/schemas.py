@@ -15,4 +15,10 @@ class PessoaSchema(BaseModel):
         if self.stack and any(len(stack) > 32 for stack in self.stack):
             raise ValueError("Stack cannot have more than 32 characters")
 
+        if len(self.apelido) > 32:
+            raise ValueError("Apelido cannot have more than 32 characters")
+
+        if len(self.nome) > 100:
+            raise ValueError("Nome cannot have more than 32 characters")
+
         return self

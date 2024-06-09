@@ -1,7 +1,7 @@
 import unittest
 from datetime import date
 
-from schemas import PessoaSchema
+from src.schemas import PessoaSchema
 from pydantic import ValidationError
 
 
@@ -58,4 +58,22 @@ class TestPessoaSchema(unittest.TestCase):
         with self.assertRaises(ValidationError):
             PessoaSchema(
                 apelido="FooBar", nome="Foo Bar", nascimento="1976-02-20", stack=[1, "Ruby"]
+            )
+
+    def test_invalid_apelido(self):
+        with self.assertRaises(ValidationError):
+            PessoaSchema(
+                apelido="FooBar" * 6,
+                nome="Foo Bar Fo",
+                nascimento="1976-02-20",
+                stack=["C", "Ruby", "Python"],
+            )
+
+    def test_invalid_nome(self):
+        with self.assertRaises(ValidationError):
+            PessoaSchema(
+                apelido="FooBar",
+                nome="Foo Bar Fo" * 12,
+                nascimento="1976-02-20",
+                stack=["C", "Ruby", "Python"],
             )

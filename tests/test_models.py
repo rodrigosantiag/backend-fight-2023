@@ -2,7 +2,7 @@ import unittest
 from datetime import date
 from uuid import uuid4, UUID
 
-from models import Pessoa, init_session, db_session
+from src.models import Pessoa, init_session, db_session
 
 
 class TestPessoa(unittest.TestCase):

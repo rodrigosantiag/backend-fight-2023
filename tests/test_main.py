@@ -7,7 +7,7 @@ import fakeredis
 from fastapi.testclient import TestClient
 
 from main import app
-from models import Pessoa, init_session, db_session, get_redis
+from src.models import Pessoa, init_session, db_session, get_redis
 
 
 def override_get_db():
@@ -194,6 +194,7 @@ class TestMain(unittest.TestCase):
         self.assertListEqual(response.json(), expected)
 
     def test_get_people_by_term_with_results(self):
+        self.maxDiff = None
         expected = [
             {
                 "id": "cdd14366-279f-4729-887e-6b977ee2b589",

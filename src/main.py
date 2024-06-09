@@ -3,15 +3,15 @@ from http import HTTPStatus
 
 from fastapi import FastAPI, Request
 
-from models import Pessoa, get_session, get_redis
-from schemas import PessoaSchema
+from src.models import Pessoa, get_session, get_redis
+from src.schemas import PessoaSchema
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from sqlalchemy.exc import IntegrityError, DataError
-from sqlalchemy import select, or_
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
 
 app = FastAPI()
 
@@ -43,14 +43,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(IntegrityError)
 async def unique_index_exception_error(request: Request, exc: IntegrityError):
-    return JSONResponse(
-        status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder({"errors": str(exc)}),
-    )
-
-
-@app.exception_handler(DataError)
-async def exceed_column_size_exception_error(request: Request, exc: DataError):
     return JSONResponse(
         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
         content=jsonable_encoder({"errors": str(exc)}),
@@ -114,7 +106,7 @@ async def get_person(
         "apelido": person.apelido,
         "nome": person.nome,
         "nascimento": str(person.nascimento),
-        "stack": person.build_stack_as_list(),
+        "stack": Pessoa.build_stack_as_list(person.stack),
     }
 
     return JSONResponse(status_code=HTTPStatus.OK, content=response)
@@ -129,18 +121,7 @@ async def get_people_by_term(
 
     result = []
 
-    people = (
-        db_session.query(Pessoa)
-        .filter(
-            or_(
-                Pessoa.apelido.ilike(f"%{t}%"),
-                Pessoa.nome.ilike(f"%{t}%"),
-                Pessoa.stack.ilike(f"%{t}%"),
-            )
-        )
-        .limit(50)
-        .all()
-    )
+    people = db_session.query(Pessoa).filter(Pessoa.searchable.ilike(f"%{t}%")).limit(50).all()
 
     for person in people:
         result.append(
@@ -149,7 +130,7 @@ async def get_people_by_term(
                 "apelido": person.apelido,
                 "nome": person.nome,
                 "nascimento": person.nascimento.isoformat(),
-                "stack": person.build_stack_as_list(),
+                "stack": Pessoa.build_stack_as_list(person.stack),
             }
         )
 
@@ -157,5 +138,5 @@ async def get_people_by_term(
 
 
 @app.get("/contagem-pessoas", status_code=HTTPStatus.OK)
-def count_people(db_session: Session = Depends(get_session)):
+async def count_people(db_session: Session = Depends(get_session)):
     return db_session.query(Pessoa).count()

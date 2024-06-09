@@ -2,11 +2,12 @@ from datetime import date
 from typing import Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import String
+from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.schema import FetchedValue
 
-from database import Base, LocalSession
-from database.db_session import DBSession
+from src.database import Base, LocalSession
+from src.database.db_session import DBSession
 from redis import StrictRedis
 
 db_session = DBSession()
@@ -42,9 +43,13 @@ class Pessoa(Base):
     nome: Mapped[str] = mapped_column(String(100))
     nascimento: Mapped[date]
     stack: Mapped[Optional[str]]
+    searchable: Mapped[Optional[str]] = mapped_column(
+        Text, server_default=FetchedValue(), server_onupdate=FetchedValue()
+    )
 
-    def build_stack_as_list(self) -> list[str]:
-        if self.stack is None:
+    @staticmethod
+    def build_stack_as_list(stack) -> list[str]:
+        if stack is None:
             return []
 
-        return self.stack.replace("{", "").replace("}", "").split(",")
+        return stack.replace("{", "").replace("}", "").split(",")

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from database import LocalSession
+from src.database import LocalSession
 
 
 class DBSession:  # pragma: no cover

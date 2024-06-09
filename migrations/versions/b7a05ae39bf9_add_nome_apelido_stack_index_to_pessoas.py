@@ -20,10 +20,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    sql = """CREATE EXTENSION IF NOT EXISTS pg_trgm;
-
-            CREATE INDEX IF NOT EXISTS idx_nome_apelido_stack_trgm
-            ON pessoas USING gin (nome gin_trgm_ops, apelido gin_trgm_ops, stack gin_trgm_ops);
+    sql = """CREATE INDEX IF NOT EXISTS idx_pessoas_searchable
+            ON pessoas USING gist (searchable gist_trgm_ops);
           """
 
     connection = op.get_bind()

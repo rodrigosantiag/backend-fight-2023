@@ -20,12 +20,22 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    create_table = """CREATE TABLE IF NOT EXISTS pessoas(
+    create_table = """CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+    CREATE OR REPLACE FUNCTION generate_searchable(_nome VARCHAR, _apelido VARCHAR, _stack TEXT)
+        RETURNS TEXT AS $$
+        BEGIN
+        RETURN COALESCE(_nome, '') || COALESCE(_apelido, '') || COALESCE(_stack, '');
+        END;
+    $$ LANGUAGE plpgsql IMMUTABLE;
+
+    CREATE TABLE IF NOT EXISTS pessoas(
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         apelido VARCHAR(32) NOT NULL UNIQUE,
         nome VARCHAR(100) NOT NULL,
         nascimento DATE NOT NULL,
-        stack TEXT
+        stack TEXT,
+        searchable TEXT GENERATED ALWAYS AS ( generate_searchable(nome, apelido, stack) ) STORED
     );"""
 
     connection = op.get_bind()
