@@ -23,7 +23,7 @@ def get_session():
 
 
 def get_redis():  # pragma: no cover
-    return StrictRedis(host="redis", port=6379, decode_responses=True)
+    return StrictRedis(host="localhost", port=6379, decode_responses=True)
 
 
 def init_session(func):

@@ -4,7 +4,6 @@ WORKDIR /app
 
 COPY requirements.txt /app
 COPY prestart.sh /app
-RUN chmod +x /usr/bin/entrypoint.sh
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 

@@ -1,5 +1,6 @@
 services:
   database:
+    network_mode: host
     image: postgres
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
@@ -23,6 +24,7 @@ services:
           memory: '1.2GB'
 
   api:
+    network_mode: host
     build:
       context: .
       target: application
@@ -33,10 +35,9 @@ services:
       MODULE_NAME: src.main
       PORT: 3000
       BIND: 0.0.0.0:3000
+      MAX_WORKERS: 1
     stdin_open: true
     tty: true
-    ports:
-      - "3000:3000"
     expose:
       - "3000"
     hostname: api
@@ -53,6 +54,7 @@ services:
           memory: '0.75GB'
 
   api1:
+    network_mode: host
     build:
       context: .
       target: application
@@ -63,10 +65,9 @@ services:
       MODULE_NAME: src.main
       PORT: 3001
       BIND: 0.0.0.0:3001
+      MAX_WORKERS: 1
     stdin_open: true
     tty: true
-    ports:
-      - "3001:3001"
     expose:
       - "3001"
     hostname: api1
@@ -83,6 +84,7 @@ services:
           memory: '0.75GB'
 
   nginx: # Load Balancer
+    network_mode: host
     image: nginx:latest
     command: ["nginx", "-g", "daemon off;"]
     volumes:
@@ -120,6 +122,7 @@ services:
       - .pgdata_test:/var/lib/postgresql/data
 
   redis:
+    network_mode: host
     image: redis:latest
     command: redis-server --save "" --appendonly no --maxclients 20000
     healthcheck:
@@ -127,8 +130,6 @@ services:
       interval: 3s
       timeout: 5s
       retries: 10
-    ports:
-      - "16379:6379"
     deploy:
       resources:
         limits:
