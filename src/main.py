@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 from fastapi import FastAPI, Request
 
-from src.models import Pessoa, get_session, get_redis
+from src.models import Pessoa, get_session
 from src.schemas import PessoaSchema
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -56,11 +56,19 @@ def hello_world():
 
 @app.post("/pessoas")
 async def add_person(
-    data: PessoaSchema, db_session: Session = Depends(get_session), cache=Depends(get_redis)
+    data: PessoaSchema, db_session: Session = Depends(get_session)
 ) -> JSONResponse:
-    cached_person = cache.get(data.apelido)
+    # cached_person = cache.get(data.apelido)
+    #
+    # if cached_person:
+    #     return JSONResponse(
+    #         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+    #         content=jsonable_encoder({"errors": "error"}),
+    #     )
 
-    if cached_person:
+    existed_person = db_session.query(Pessoa).filter(Pessoa.apelido == data.apelido).first()
+
+    if existed_person:
         return JSONResponse(
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
             content=jsonable_encoder({"errors": "error"}),
@@ -68,8 +76,8 @@ async def add_person(
 
     person = Pessoa(**data.model_dump())
 
-    cache.set(person.apelido, person.apelido)
-    cache.set(str(person.id), serialize(person.__dict__))
+    # cache.set(person.apelido, person.apelido)
+    # cache.set(str(person.id), serialize(person.__dict__))
 
     db_session.add(person)
     db_session.commit()
@@ -82,13 +90,11 @@ async def add_person(
 
 
 @app.get("/pessoas/{uid}")
-async def get_person(
-    uid: str, db_session: Session = Depends(get_session), cache=Depends(get_redis)
-) -> JSONResponse:
-    cached_person = cache.get(uid)
-
-    if cached_person:
-        return JSONResponse(status_code=HTTPStatus.OK, content=deserialize(cached_person))
+async def get_person(uid: str, db_session: Session = Depends(get_session)) -> JSONResponse:
+    # cached_person = cache.get(uid)
+    #
+    # if cached_person:
+    #     return JSONResponse(status_code=HTTPStatus.OK, content=deserialize(cached_person))
 
     statement = select(Pessoa).where(Pessoa.id == uid).limit(1)
     person = db_session.execute(statement).first()
@@ -97,9 +103,9 @@ async def get_person(
         return JSONResponse(status_code=HTTPStatus.NOT_FOUND, content={"message": "Not found"})
 
     person = person[0]
-    person_data = person.__dict__
-    cache.set(person.apelido, person.apelido)
-    cache.set(str(person.id), serialize(person_data))
+    # person_data = person.__dict__
+    # cache.set(person.apelido, person.apelido)
+    # cache.set(str(person.id), serialize(person_data))
 
     response = {
         "id": str(person.id),
