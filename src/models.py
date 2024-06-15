@@ -8,7 +8,6 @@ from sqlalchemy.schema import FetchedValue
 
 from src.database import Base, LocalSession
 from src.database.db_session import DBSession
-from redis import StrictRedis
 
 db_session = DBSession()
 
@@ -20,10 +19,6 @@ def get_session():
         yield session
     finally:
         session.close()
-
-
-def get_redis():  # pragma: no cover
-    return StrictRedis(host="localhost", port=6379, decode_responses=True)
 
 
 def init_session(func):

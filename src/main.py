@@ -1,4 +1,3 @@
-import json
 from http import HTTPStatus
 
 from fastapi import FastAPI, Request
@@ -10,19 +9,10 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 
 app = FastAPI()
-
-
-def serialize(data):
-    return json.dumps(data, default=str)
-
-
-def deserialize(data):
-    return json.loads(data)
 
 
 @app.exception_handler(RequestValidationError)
@@ -42,78 +32,34 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
-@app.exception_handler(IntegrityError)
-async def unique_index_exception_error(request: Request, exc: IntegrityError):
-    return JSONResponse(
-        status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-        content=jsonable_encoder({"errors": str(exc)}),
-    )
-
-
 @app.get("/")
 def hello_world():
     return {"hello": "world"}
-
-
-# @app.post("/pessoas")
-# async def add_person(
-#     data: PessoaSchema, db_session: Session = Depends(get_session)
-# ) -> JSONResponse:
-#     # cached_person = cache.get(data.apelido)
-#     #
-#     # if cached_person:
-#     #     return JSONResponse(
-#     #         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-#     #         content=jsonable_encoder({"errors": "error"}),
-#     #     )
-#
-#     existed_person = db_session.query(Pessoa).filter(Pessoa.apelido == data.apelido).first()
-#
-#     if existed_person:
-#         return JSONResponse(
-#             status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
-#             content=jsonable_encoder({"errors": "error"}),
-#         )
-#
-#     person = Pessoa(**data.model_dump())
-#
-#     # cache.set(person.apelido, person.apelido)
-#     # cache.set(str(person.id), serialize(person.__dict__))
-#
-#     db_session.add(person)
-#     db_session.commit()
-#
-#     headers = {"Location": f"/pessoas/{str(person.id)}"}
-#
-#     return JSONResponse(
-#         status_code=HTTPStatus.CREATED, content={"uid": str(person.id)}, headers=headers
-#     )
 
 
 @app.post("/pessoas")
 async def add_person(
     data: PessoaSchema, db_session: Session = Depends(get_session)
 ) -> JSONResponse:
-    stmt = (
+    statement = (
         insert(Pessoa)
         .values(**data.model_dump())
         .on_conflict_do_nothing(index_elements=["apelido"])
         .returning(Pessoa.id)
     )
 
-    result = db_session.execute(stmt)
+    result = db_session.execute(statement)
     inserted_person_id = result.scalar()
 
     if inserted_person_id is None:
-        # Conflict occurred, row was not inserted
         return JSONResponse(
             status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
             content={"errors": "Conflict: Person already exists."},
         )
     else:
-        # Insert successful
         db_session.commit()
         headers = {"Location": f"/pessoas/{str(inserted_person_id)}"}
+
         return JSONResponse(
             status_code=HTTPStatus.CREATED,
             content={"uid": str(inserted_person_id)},

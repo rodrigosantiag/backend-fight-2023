@@ -2,21 +2,11 @@ import unittest
 from datetime import date
 from http import HTTPStatus
 from uuid import UUID
-
-import fakeredis
 from fastapi.testclient import TestClient
 
 from main import app
-from src.models import Pessoa, init_session, db_session, get_redis
+from src.models import Pessoa, init_session, db_session
 
-
-def override_get_db():
-    cache = fakeredis.FakeStrictRedis()
-    cache.set("cached", '{"foo": "bar"}')
-    return cache
-
-
-app.dependency_overrides[get_redis] = override_get_db
 
 client = TestClient(app)
 
@@ -115,19 +105,6 @@ class TestMain(unittest.TestCase):
                 self.assertEqual(response.status_code, HTTPStatus.UNPROCESSABLE_ENTITY)
                 self.assertIn("errors", response.json())
 
-    def test_add_person_cached_unprocessable_entity(self):
-        payload = {
-            "apelido": "cached",
-            "nome": "José Roberto",
-            "nascimento": "2000-10-01",
-            "stack": ["C#", "Node", "Oracle"],
-        }
-
-        response = client.post("/pessoas", json=payload)
-
-        self.assertEqual(response.status_code, HTTPStatus.UNPROCESSABLE_ENTITY)
-        self.assertIn("errors", response.json())
-
     def test_add_person_bad_gateway(self):
         payloads = [
             {"apelido": "apelido", "nome": 1, "nascimento": "1985-01-01", "stack": None},
@@ -151,14 +128,6 @@ class TestMain(unittest.TestCase):
             "nascimento": "1980-01-01",
             "stack": ["Python", "C#", "PHP", "Ruby"],
         }
-
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertDictEqual(response.json(), expected)
-
-    def test_get_person_from_cache_success(self):
-        response = client.get("/pessoas/cached")
-
-        expected = {"foo": "bar"}
 
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertDictEqual(response.json(), expected)
