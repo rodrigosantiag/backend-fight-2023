@@ -66,6 +66,12 @@ up:
 nginx:
 	@docker compose up --build --wait nginx
 
+up-bridge:
+	@docker compose -f docker-compose-bridge.yml up --build --wait api
+
+nginx-bridge:
+	@docker compose -f docker-compose-bridge.yml up --build --wait nginx
+
 down:
 	@docker compose down
 

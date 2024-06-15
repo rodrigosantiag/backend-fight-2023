@@ -106,14 +106,14 @@ def get_termo_busca():
 
 
 def gera_payloads(numero_registros):
-    with open("user-files/resources/pessoas-payloads.tsv", "w") as f:
+    with open("user-files/resources/pessoas-payloads.tsv_2", "w") as f:
         f.write("payload\n")
         for _ in range(numero_registros):
             f.write(f"{get_payload()}\n")
 
 
 def gera_termos_busca(numero_registros):
-    with open("user-files/resources/termos-busca.tsv", "w") as f:
+    with open("user-files/resources/termos-busca.tsv_2", "w") as f:
         f.write("t\n")
         for _ in range(numero_registros):
             f.write(get_termo_busca() + "\n")
