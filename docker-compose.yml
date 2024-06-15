@@ -19,7 +19,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: '1.4GB'
+          memory: '1.3GB'
 
   api:
     network_mode: host
@@ -44,7 +44,7 @@ services:
       resources:
         limits:
           cpus: '0.45'
-          memory: '0.7GB'
+          memory: '0.75GB'
 
   api1:
     network_mode: host
@@ -69,7 +69,7 @@ services:
       resources:
         limits:
           cpus: '0.45'
-          memory: '0.7GB'
+          memory: '0.75GB'
 
   nginx: # Load Balancer
     network_mode: host
