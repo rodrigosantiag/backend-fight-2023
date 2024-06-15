@@ -18,8 +18,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.4'
-          memory: '1.3GB'
+          cpus: '0.5'
+          memory: '1.4GB'
 
   api:
     network_mode: host
@@ -43,8 +43,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: '0.75GB'
+          cpus: '0.45'
+          memory: '0.7GB'
 
   api1:
     network_mode: host
@@ -68,8 +68,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: '0.75GB'
+          cpus: '0.45'
+          memory: '0.7GB'
 
   nginx: # Load Balancer
     network_mode: host
