@@ -19,7 +19,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: '1.3GB'
+          memory: '1.4GB'
 
   api:
     network_mode: host
@@ -77,7 +77,6 @@ services:
     command: ["nginx", "-g", "daemon off;"]
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ~/logs/nginx:/var/log/nginx
     depends_on:
       - api
       - api1
@@ -90,7 +89,7 @@ services:
       resources:
         limits:
           cpus: '0.1'
-          memory: '0.2GB'
+          memory: '0.1GB'
 
   testgres:
     image: postgres
@@ -106,21 +105,6 @@ services:
       - "15432:5432"
     volumes:
       - .pgdata_test:/var/lib/postgresql/data
-
-  redis:
-    network_mode: host
-    image: redis:latest
-    command: redis-server --save "" --appendonly no --maxclients 20000
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 3s
-      timeout: 5s
-      retries: 10
-    deploy:
-      resources:
-        limits:
-          cpus: '0.1'
-          memory: '0.1GB'
 
 volumes:
   .pgdata_test:
