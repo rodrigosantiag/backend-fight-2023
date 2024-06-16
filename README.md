@@ -12,9 +12,9 @@
 - [Installation](#installation)
 - [Gatling installation](#gatling-installation)
 - [Usage](#usage)
-  - [Starting services](starting-services)
-    - [Network mode host](network-mode-host)
-- [My personal best result](#my-personal-best-result)
+- [Personal best result](#personal-best-result)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ## Introduction
 
@@ -81,7 +81,7 @@ make nginx
 
 Note: In network mode `host`, update the `DATABASE_URL` environment variable in the `.env` file to connect to the database host `localhost` instead of `database` (the default value for bridge mode as provided in the `.env_sample` file).
 
-#### Network mode host
+#### Network mode bridge
 
 ```shell
 make nginx-bridge
