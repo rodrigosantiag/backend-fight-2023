@@ -69,11 +69,6 @@ async def add_person(
 
 @app.get("/pessoas/{uid}")
 async def get_person(uid: str, db_session: Session = Depends(get_session)) -> JSONResponse:
-    # cached_person = cache.get(uid)
-    #
-    # if cached_person:
-    #     return JSONResponse(status_code=HTTPStatus.OK, content=deserialize(cached_person))
-
     statement = select(Pessoa).where(Pessoa.id == uid).limit(1)
     person = db_session.execute(statement).first()
 
@@ -81,9 +76,6 @@ async def get_person(uid: str, db_session: Session = Depends(get_session)) -> JS
         return JSONResponse(status_code=HTTPStatus.NOT_FOUND, content={"message": "Not found"})
 
     person = person[0]
-    # person_data = person.__dict__
-    # cache.set(person.apelido, person.apelido)
-    # cache.set(str(person.id), serialize(person_data))
 
     response = {
         "id": str(person.id),
